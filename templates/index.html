@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask p5.js Integration</title>
+    <style>
+        body {
+            background-color: #E0E0E0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            padding-top: 20px; /* Added padding-top */
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1, h3 {
+            margin: 20px 0;
+        }
+
+        .input-field,
+        .radio-field {
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            width: calc(100% - 12px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #CCCCCC;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .radio-group {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .radio-group label {
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .date-inputs input {
+            width: 30%;
+            margin-right: 2%;
+        }
+
+        .date-inputs input:last-child {
+            margin-right: 0;
+        }
+
+        .radio-field input {
+            margin-right: 10px;
+        }
+
+        #previous-field, #femoral2-field {
+            display: none;
+        }
+
+        #result {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            margin-top: 20px;
+        }
+
+        #follow-up {
+            font-size: 1.2em;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>BMD Assessment</h1>
+        <div class="input-field">
+            <label for="age">Enter Age:</label>
+            <input type="number" id="age" min="18">
+        </div>
+        <div class="radio-field radio-group">
+            <label>Enter Gender:</label>
+            <div>
+                <input type="radio" id="male" name="gender" value="m">
+                <label for="male">Male</label>
+            </div>
+            <div>
+                <input type="radio" id="female" name="gender" value="f" checked>
+                <label for="female">Female</label>
+            </div>
+        </div>
+        <div class="input-field">
+            <label for="lumbar" id="lumbarLabel">Enter Lumbar Spine T-Score:</label>
+            <input type="number" id="lumbar">
+        </div>
+        <div class="input-field">
+            <label for="femoral" id="femoralLabel">Enter Femoral Neck T-Score:</label>
+            <input type="number" id="femoral">
+        </div>
+        <div class="input-field" id="femoral2-field">
+            <label for="femoral2" id="femoral2Label">Enter Femoral Neck T-Score Female:</label>
+            <input type="number" id="femoral2">
+        </div>
+        <div class="input-field">
+            <label for="hip" id="hipLabel">Enter Total Hip T-Score:</label>
+            <input type="number" id="hip">
+        </div>
+        <div class="hide-with-z">
+            <div class="radio-field">
+                <label>Fragility Fracture History:</label>
+                <div class="radio-group">
+                    <div>
+                        <input type="radio" id="fracture-yes" name="fracture" value="yes">
+                        <label for="fracture-yes">Yes</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="fracture-no" name="fracture" value="no" checked>
+                        <label for="fracture-no">No</label>
+                    </div>
+                </div>
+            </div>
+            <div class="radio-field">
+                <label>Glucocorticoid History:</label>
+                <div class="radio-group">
+                    <div>
+                        <input type="radio" id="gluc-yes" name="gluc" value="yes">
+                        <label for="gluc-yes">Yes</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="gluc-no" name="gluc" value="no" checked>
+                        <label for="gluc-no">No</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="input-field" id="previous-field">
+            <label>Previous Date:</label>
+            <div class="date-inputs">
+                <input type="number" id="previousDay" placeholder="DD" min="1" max="31">
+                <input type="number" id="previousMonth" placeholder="MM" min="1" max="12">
+                <input type="number" id="previousYear" placeholder="YYYY" min="1900">
+            </div>
+            <div>
+                <input type="number" id="previousHip" placeholder="Previous Hip T-Score">
+            </div>
+        </div>
+        <div id="result">Result: <span></span></div>
+        <div id="follow-up"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // Add event listeners to all inputs and radio buttons
+            document.getElementById('age').addEventListener('input', calculate);
+            document.getElementById('male').addEventListener('change', handleGenderChange);
+            document.getElementById('female').addEventListener('change', handleGenderChange);
+            document.getElementById('lumbar').addEventListener('input', calculate);
+            document.getElementById('femoral').addEventListener('input', calculate);
+            document.getElementById('femoral2').addEventListener('input', calculate);
+            document.getElementById('hip').addEventListener('input', calculate);
+            document.getElementById('fracture-yes').addEventListener('change', calculate);
+            document.getElementById('fracture-no').addEventListener('change', calculate);
+            document.getElementById('gluc-yes').addEventListener('change', calculate);
+            document.getElementById('gluc-no').addEventListener('change', calculate);
+            document.getElementById('previousDay').addEventListener('input', calculate);
+            document.getElementById('previousMonth').addEventListener('input', calculate);
+            document.getElementById('previousYear').addEventListener('input', calculate);
+            document.getElementById('previousHip').addEventListener('input', calculate);
+            handleGenderChange(); // Initial check for gender visibility
+            calculate(); // Initial calculation
+        });
+
+        function handleGenderChange() {
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            const femoral2Field = document.getElementById('femoral2-field');
+            if (gender === 'm') {
+                femoral2Field.style.display = 'block';
+            } else {
+                femoral2Field.style.display = 'none';
+            }
+            calculate();
+        }
+
+        function fractureRisk(f, gender, age, fracture, gluc) {
+            let a = Math.ceil(age / 5) * 5;
+            let risk;
+
+            if (gender == "f") {
+                if (a == 50 || a == 55) {
+                    risk = score(f, -2.5, -3.8);
+                } else if (a == 60) {
+                    risk = score(f, -2.3, -3.7);
+                } else if (a == 65) {
+                    risk = score(f, -1.9, -3.5);
+                } else if (a == 70) {
+                    risk = score(f, -1.7, -3.2);
+                } else if (a == 75) {
+                    risk = score(f, -1.2, -2.9);
+                } else if (a == 80) {
+                    risk = score(f, -0.5, -2.6);
+                } else if (a >= 85) {
+                    risk = score(f, 0.1, -2.2);
+                }
+            } else if (gender == "m") {
+                if (a == 50 || a == 55) {
+                    risk = score(f, -2.5, -3.9);
+                } else if (a == 60) {
+                    risk = score(f, -2.5, -3.7);
+                } else if (a == 65) {
+                    risk = score(f, -2.4, -3.7);
+                } else if (a == 70) {
+                    risk = score(f, -2.3, -3.7);
+                } else if (a == 75) {
+                    risk = score(f, -2.3, -3.8);
+                } else if (a == 80) {
+                    risk = score(f, -2.1, -3.8);
+                } else if (a >= 85) {
+                    risk = score(f, -2.0, -3.8);
+                }
+            }
+            if (fracture || gluc) {
+                if (risk == "Moderate") risk = "High";
+                if (risk == "Low") risk = "Moderate";
+                if (fracture && gluc && a > 40) {
+                    risk = "High";
+                }
+            }
+
+            return risk + " Risk";
+        }
+
+        function score(f, lowRisk, moderateRisk) {
+            let risk;
+            if (f > lowRisk) risk = "Low";
+            else if (f >= moderateRisk) risk = "Moderate";
+            else risk = "High";
+            return risk;
+        }
+
+        function calculate() {
+            var age = document.getElementById('age').value;
+            var gender = document.querySelector('input[name="gender"]:checked').value;
+            var lumbarT = document.getElementById('lumbar').value;
+            var femoralNeckT = document.getElementById('femoral').value;
+            var femoralNeckT2 = document.getElementById('femoral2').value;
+            var totalHipT = document.getElementById('hip').value;
+            var fracture = document.querySelector('input[name="fracture"]:checked').value;
+            var gluc = document.querySelector('input[name="gluc"]:checked').value;
+            let categoryName = "";
+            let followUp = "Follow up in";
+            let followUpTime = "";
+            let followUpCause = "";
+            document.getElementById("result").querySelector('span').innerText = "";
+            document.getElementById("follow-up").innerText = "";
+            document.body.style.backgroundColor = 'rgb(224, 224, 224)';
+            let texts = {
+                lumbar: document.getElementById('lumbarLabel'),
+                femoral: document.getElementById('femoralLabel'),
+                hip: document.getElementById('hipLabel'),
+                femoral2: document.getElementById('femoral2Label'),
+            };
+
+            if (age < 50 && age >= 18) {
+                texts.lumbar.textContent = "Enter Lumbar Spine Z-Score";
+                texts.femoral.textContent = "Enter Femoral Neck Z-Score";
+                texts.hip.textContent = "Enter Total Hip Z-Score";
+                document.getElementById("femoral2-field").style.display = "none";
+                document.querySelector('.hide-with-z').style.display = "none";
+            } else {
+                texts.lumbar.textContent = "Enter Lumbar Spine T-Score";
+                texts.femoral.textContent = "Enter Femoral Neck T-Score";
+                texts.hip.textContent = "Enter Total Hip T-Score";
+                document.querySelector('.hide-with-z').style.display = "block";
+                document.getElementById("femoral2-field").style.display = gender == "m" ? "block": "none";
+
+            }
+
+            if (age && gender && lumbarT && femoralNeckT && totalHipT) {
+                if ((gender == "m" && !femoralNeckT2 && age >= 50) || isNaN(femoralNeckT2)) return;
+
+                let minVal = Math.min(lumbarT, femoralNeckT, totalHipT);
+                if (isNaN(minVal)) return;
+
+                if (age >= 50) {
+                    if (minVal >= -1) {
+                        categoryName = "Normal ";
+                        document.body.style.backgroundColor = "rgb(72, 218, 49)";
+                        if (fracture === "yes" || gluc === "yes") {
+                            followUpTime = "1 year";
+                            if (fracture === "yes" && gluc === "no") {
+                                followUpCause = "(fragility fracture history)";
+                            } else if (fracture === "no" && gluc === "yes") {
+                                followUpCause = "(glucocorticoid history)";
+                            } else {
+                                followUpCause = "(fragility fracture and glucocorticoid history)";
+                            }
+                        }
+                    } else if (minVal > -2.5) {
+                        followUpTime = "1 year";
+                        followUpCause = "(low bone mass)";
+                        categoryName = "Low Bone Mass ";
+                        document.body.style.backgroundColor = "#F1C53F";
+                    } else {
+                        followUpTime = "1 year";
+                        followUpCause = "(Osteoporosis)";
+                        categoryName = "Osteoporosis ";
+                        document.body.style.backgroundColor = "#F44336";
+                    }
+                    if (!followUpTime) {
+                        document.getElementById("previous-field").style.display = "block";
+                        const previousDay = document.getElementById('previousDay');
+                        const previousMonth = document.getElementById('previousMonth');
+                        const previousYear = document.getElementById('previousYear');
+                        if (previousDay && previousMonth && previousYear) {
+                            const month = previousMonth.value
+                            const day = previousDay.value
+                            const year = previousYear.value
+                            const previousHipBMD = document.getElementById('previousHip').value;
+                            if (year > 1000 && year <= new Date().getFullYear() && previousHipBMD) {
+                                if (month > 0 && month <= 12) {
+                                    if (day > 0 && day <= 31) {
+                                        const previousDate = new Date(year, month - 1, day);
+                                        const currentDate = new Date();
+                                        const millDiff = currentDate - previousDate;
+                                        const yearDiff = millDiff / (1000 * 60 * 60 * 24 * 365.25);
+                                        const intervalBoneLoss = totalHipT - previousHipBMD;
+                                        const annualBoneLoss = intervalBoneLoss / previousHipBMD;
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        document.getElementById("previous-field").style.display = "none";
+                    }
+                    let risk;
+                    if (gender == "f") {
+                        risk = fractureRisk(femoralNeckT, gender, age, fracture === "yes", gluc === "yes");
+                    } else {
+                        risk = fractureRisk(femoralNeckT2, gender, age, fracture === "yes", gluc === "yes");
+                    }
+
+                    if (risk == "Low Risk") risk = fractureRisk(lumbarT, gender, age, fracture === "yes", gluc === "yes");
+                    categoryName += risk;
+
+                } else if (age >= 18) {
+                    if (minVal > -2) {
+                        categoryName = "Within Expected Range ";
+                        document.body.style.backgroundColor = "rgb(120, 233, 183)";
+                    } else {
+                        categoryName = "Below Expected Range ";
+                        document.body.style.backgroundColor = "#F44336";
+                    }
+                }
+
+                document.getElementById('result').querySelector('span').innerText = categoryName;
+                if (followUpTime) {
+                    document.getElementById('follow-up').innerText = "(Beta): " + followUp + " " + followUpTime + " " + followUpCause;
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
