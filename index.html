@@ -32,6 +32,7 @@
             margin: 20px 0;
         }
 
+        
         .input-field,
         .radio-field {
             margin: 15px 0;
@@ -67,7 +68,7 @@
 
         .date-inputs input {
             width: 30%;
-            margin-right: 2%;
+            margin-right: 3.22%;
         }
 
         .date-inputs input:last-child {
@@ -78,7 +79,7 @@
             margin-right: 10px;
         }
 
-        #previous-field, #femoral2-field {
+        #femoral2-field {
             display: none;
         }
 
@@ -93,6 +94,17 @@
             font-size: 1.2em;
             color: #666;
             margin-top: 10px;
+        }
+        #intervalLumbar,
+        #previousLumbar,
+        #intervalHip,
+        #previousHip {
+            width: 150px; /* Set a fixed width for these specific inputs */
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #CCCCCC;
+            border-radius: 4px;
+            box-sizing: border-box;
         }
     </style>
 </head>
@@ -127,9 +139,41 @@
             <label for="femoral2" id="femoral2Label">Enter Femoral Neck T-Score Female:</label>
             <input type="number" id="femoral2">
         </div>
-        <div class="input-field">
+        <div class="input-field" id="hip-field">
             <label for="hip" id="hipLabel">Enter Total Hip T-Score:</label>
             <input type="number" id="hip">
+        </div>
+        <div class="input-field" id="current-field">
+            <label>Most Recent BMD:</label>
+            <div class="date-inputs">
+                <input type="number" id="currentDay" placeholder="DD" min="1" max="31">
+                <input type="number" id="currentMonth" placeholder="MM" min="1" max="12">
+                <input type="number" id="currentYear" placeholder="YYYY" min="1900">
+            </div>
+        </div>
+        <div class="input-field" id="previous-field">
+            <label>Previous Date:</label>
+            <div class="date-inputs">
+                <input type="number" id="previousDay" placeholder="DD" min="1" max="31">
+                <input type="number" id="previousMonth" placeholder="MM" min="1" max="12">
+                <input type="number" id="previousYear" placeholder="YYYY" min="1900">
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <label for="intervalLumbar" style="width: 250px;">Change vs Previous L Spine</label>
+                <input type="number" id="intervalLumbar" />
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <label for="previousLumbar" style="width: 250px;">Previous Lumbar BMD</label>
+                <input type="number" id="previousLumbar" />
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <label for="intervalHip" style="width: 250px;">Change vs Previous Hip</label>
+                <input type="number" id="intervalHip" />
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <label for="previousHip" style="width: 250px;">Previous Hip BMD</label>
+                <input type="number" id="previousHip" />
+            </div>
         </div>
         <div class="hide-with-z">
             <div class="radio-field">
@@ -159,22 +203,16 @@
                 </div>
             </div>
         </div>
-        <div class="input-field" id="previous-field">
-            <label>Previous Date:</label>
-            <div class="date-inputs">
-                <input type="number" id="previousDay" placeholder="DD" min="1" max="31">
-                <input type="number" id="previousMonth" placeholder="MM" min="1" max="12">
-                <input type="number" id="previousYear" placeholder="YYYY" min="1900">
-            </div>
-            <div>
-                <input type="number" id="previousHip" placeholder="Previous Hip T-Score">
-            </div>
-        </div>
         <div id="result">Result: <span></span></div>
         <div id="follow-up"></div>
     </div>
 
     <script>
+        const categories = ["Normal", "Low Bone Mass", "Osteoperosis"];
+        const risks = ["Low Risk", "Moderate Risk", "High Risk"];
+        document.getElementById('currentDay').value = new Date().getDate();
+        document.getElementById('currentMonth').value = new Date().getMonth()+1;
+        document.getElementById('currentYear').value = new Date().getFullYear();
         document.addEventListener('DOMContentLoaded', (event) => {
             // Add event listeners to all inputs and radio buttons
             document.getElementById('age').addEventListener('input', calculate);
@@ -192,6 +230,12 @@
             document.getElementById('previousMonth').addEventListener('input', calculate);
             document.getElementById('previousYear').addEventListener('input', calculate);
             document.getElementById('previousHip').addEventListener('input', calculate);
+            document.getElementById('previousLumbar').addEventListener('input', calculate);
+            document.getElementById('currentDay').addEventListener('input', calculate);
+            document.getElementById('currentMonth').addEventListener('input', calculate);
+            document.getElementById('currentYear').addEventListener('input', calculate);
+            document.getElementById('intervalHip').addEventListener('input', calculate);
+            document.getElementById('intervalLumbar').addEventListener('input', calculate);
             handleGenderChange(); // Initial check for gender visibility
             calculate(); // Initial calculation
         });
@@ -245,25 +289,125 @@
                 }
             }
             if (fracture || gluc) {
-                if (risk == "Moderate") risk = "High";
-                if (risk == "Low") risk = "Moderate";
+                risk++;
+                if (risk > 2) risk = 2;
                 if (fracture && gluc && a > 40) {
-                    risk = "High";
+                    risk = 2;
                 }
             }
 
-            return risk + " Risk";
+            return risk;
         }
 
         function score(f, lowRisk, moderateRisk) {
             let risk;
-            if (f > lowRisk) risk = "Low";
-            else if (f >= moderateRisk) risk = "Moderate";
-            else risk = "High";
+            if (f > lowRisk) risk = 0;
+            else if (f >= moderateRisk) risk = 1;
+            else risk = 2;
+            return risk;
+        }
+
+        function GetPercentageChange(lowestSignificantChange, intervalBoneLoss, previousBMD){
+            const previousDayValue = document.getElementById('previousDay').value;
+            const previousMonthValue = document.getElementById('previousMonth').value;
+            const previousYearValue = document.getElementById('previousYear').value;
+
+            const currentDayValue = document.getElementById('currentDay').value;
+            const currentMonthValue = document.getElementById('currentMonth').value;
+            const currentYearValue = document.getElementById('currentYear').value;
+
+            if (previousDayValue && previousMonthValue && previousYearValue) {
+
+                if (intervalBoneLoss < lowestSignificantChange) return -Infinity;
+
+                const previousDate = new Date(previousYearValue, previousMonthValue - 1, previousDayValue);
+
+                const currentDate = new Date(currentYearValue, currentMonthValue - 1, currentDayValue);
+                const millDiff = currentDate - previousDate;
+                const yearDiff = millDiff / (1000 * 60 * 60 * 24 * 365.25);
+
+
+                const boneLossPercentPerYear = (intervalBoneLoss / previousBMD) / yearDiff * 100;
+
+                return boneLossPercentPerYear;
+                
+            }
+            return undefined;
+        }
+
+
+        function GetLumbarPercentageChange(){
+            const intervalBoneLoss = -document.getElementById('intervalLumbar').value;
+            const previousLumbar = +document.getElementById("previousLumbar").value;
+            return GetPercentageChange(0.047, intervalBoneLoss, previousLumbar)
+        }
+
+        function GetHipPercentageChange(){
+            const intervalBoneLoss = -document.getElementById('intervalHip').value;
+            const previousHip = +document.getElementById("previousHip").value;
+            return GetPercentageChange(0.027, intervalBoneLoss, previousHip)
+        }
+                
+            
+        
+
+        function calculateFollowUp(category, risk){
+
+            const hipBoneLossPercentPerYear = GetHipPercentageChange();
+            const lumbarBoneLossPercentPerYear = GetLumbarPercentageChange();
+
+            let isFirstBMD = false;
+
+            if (hipBoneLossPercentPerYear == undefined || lumbarBoneLossPercentPerYear == undefined){
+                isFirstBMD = true;
+            }
+            const maxBoneLossPerYear = Math.max(hipBoneLossPercentPerYear, lumbarBoneLossPercentPerYear);
+
+            // should this change the actual risk output or just the follow up risk
+
+            if (isFirstBMD){
+                if (category+risk == 0){
+                    return "3 years - First BMD and Normal";
+                }else{
+                    return "1 year - First BMD, " + categories[category] + " and " + risks[risk];
+                }
+            }
+
+
+            if (maxBoneLossPerYear > 1){
+                return "1 year - Greater than 1% decrease";
+            }else{ 
+                if (category+risk > 0){
+                    return "2 years - " + categories[category]  + " " + risks[risk] + " and Stable";
+                }else{
+                    return "5 years - Normal and Stable";
+                }
+            }
+        }
+        function calculateCategory(minTScore){
+            if (minTScore >= -1) return 0;
+            if (minTScore > -2.5) return 1;
+            return 2;
+        }
+
+        function calculateRisk(age, gender, femoralNeckT, femoralNeckT2, lumbarT, fracture, gluc){
+
+
+            let risk;
+            if (gender == "f") {
+                risk = fractureRisk(femoralNeckT, gender, age, fracture === "yes", gluc === "yes");
+            } else {
+                risk = fractureRisk(femoralNeckT2, gender, age, fracture === "yes", gluc === "yes");
+            }
+
+            if (risk == 0) risk = fractureRisk(lumbarT, gender, age, fracture === "yes", gluc === "yes");
+
+
             return risk;
         }
 
         function calculate() {
+            
             var age = document.getElementById('age').value;
             var gender = document.querySelector('input[name="gender"]:checked').value;
             var lumbarT = document.getElementById('lumbar').value;
@@ -272,13 +416,14 @@
             var totalHipT = document.getElementById('hip').value;
             var fracture = document.querySelector('input[name="fracture"]:checked').value;
             var gluc = document.querySelector('input[name="gluc"]:checked').value;
+
             let categoryName = "";
-            let followUp = "Follow up in";
-            let followUpTime = "";
-            let followUpCause = "";
+            let followUp = "";
+
             document.getElementById("result").querySelector('span').innerText = "";
             document.getElementById("follow-up").innerText = "";
             document.body.style.backgroundColor = 'rgb(224, 224, 224)';
+
             let texts = {
                 lumbar: document.getElementById('lumbarLabel'),
                 femoral: document.getElementById('femoralLabel'),
@@ -303,70 +448,23 @@
 
             if (age && gender && lumbarT && femoralNeckT && totalHipT) {
                 if ((gender == "m" && !femoralNeckT2 && age >= 50) || isNaN(femoralNeckT2)) return;
-
                 let minVal = Math.min(lumbarT, femoralNeckT, totalHipT);
                 if (isNaN(minVal)) return;
 
-                if (age >= 50) {
-                    if (minVal >= -1) {
-                        categoryName = "Normal ";
-                        document.body.style.backgroundColor = "rgb(72, 218, 49)";
-                        if (fracture === "yes" || gluc === "yes") {
-                            followUpTime = "1 year";
-                            if (fracture === "yes" && gluc === "no") {
-                                followUpCause = "(fragility fracture history)";
-                            } else if (fracture === "no" && gluc === "yes") {
-                                followUpCause = "(glucocorticoid history)";
-                            } else {
-                                followUpCause = "(fragility fracture and glucocorticoid history)";
-                            }
-                        }
-                    } else if (minVal > -2.5) {
-                        followUpTime = "1 year";
-                        followUpCause = "(low bone mass)";
-                        categoryName = "Low Bone Mass ";
-                        document.body.style.backgroundColor = "#F1C53F";
-                    } else {
-                        followUpTime = "1 year";
-                        followUpCause = "(Osteoporosis)";
-                        categoryName = "Osteoporosis ";
-                        document.body.style.backgroundColor = "#F44336";
-                    }
-                    if (!followUpTime) {
-                        document.getElementById("previous-field").style.display = "block";
-                        const previousDay = document.getElementById('previousDay');
-                        const previousMonth = document.getElementById('previousMonth');
-                        const previousYear = document.getElementById('previousYear');
-                        if (previousDay && previousMonth && previousYear) {
-                            const month = previousMonth.value
-                            const day = previousDay.value
-                            const year = previousYear.value
-                            const previousHipBMD = document.getElementById('previousHip').value;
-                            if (year > 1000 && year <= new Date().getFullYear() && previousHipBMD) {
-                                if (month > 0 && month <= 12) {
-                                    if (day > 0 && day <= 31) {
-                                        const previousDate = new Date(year, month - 1, day);
-                                        const currentDate = new Date();
-                                        const millDiff = currentDate - previousDate;
-                                        const yearDiff = millDiff / (1000 * 60 * 60 * 24 * 365.25);
-                                        const intervalBoneLoss = totalHipT - previousHipBMD;
-                                        const annualBoneLoss = intervalBoneLoss / previousHipBMD;
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        document.getElementById("previous-field").style.display = "none";
-                    }
-                    let risk;
-                    if (gender == "f") {
-                        risk = fractureRisk(femoralNeckT, gender, age, fracture === "yes", gluc === "yes");
-                    } else {
-                        risk = fractureRisk(femoralNeckT2, gender, age, fracture === "yes", gluc === "yes");
-                    }
+                
 
-                    if (risk == "Low Risk") risk = fractureRisk(lumbarT, gender, age, fracture === "yes", gluc === "yes");
-                    categoryName += risk;
+
+                if (age >= 50) {
+                    const colours = ["rgb(72, 218, 49)", "#F1C53F", "#F44336"]
+
+
+                    const category = calculateCategory(minVal);
+                    let risk = calculateRisk(age, gender, femoralNeckT, femoralNeckT2, lumbarT, fracture, gluc);
+                    followUp = calculateFollowUp(category, risk);
+                    
+                    categoryName = categories[category];
+                    categoryName += " " + risks[risk];
+                    document.body.style.backgroundColor = colours[category];
 
                 } else if (age >= 18) {
                     if (minVal > -2) {
@@ -377,11 +475,9 @@
                         document.body.style.backgroundColor = "#F44336";
                     }
                 }
-
                 document.getElementById('result').querySelector('span').innerText = categoryName;
-                if (followUpTime) {
-                    document.getElementById('follow-up').innerText = "(Beta): " + followUp + " " + followUpTime + " " + followUpCause;
-                }
+                document.getElementById('follow-up').innerText = "Follow up in " + followUp;
+                
             }
         }
     </script>
