@@ -209,7 +209,11 @@
 
     <script>
         const categories = ["Normal", "Low Bone Mass", "Osteoperosis"];
-        const risks = ["Low Risk", "Moderate Risk", "High Risk"];
+        const risks = ["Low Risk", "Moderate Risk", "High Risk", "Undefined Risk"];
+        const LOW_RISK = 0;
+        const MODERATE_RISK = 1;
+        const HIGH_RISK = 2;
+        const UNDEFINED_RISK = 3;
         document.getElementById('currentDay').value = new Date().getDate();
         document.getElementById('currentMonth').value = new Date().getMonth()+1;
         document.getElementById('currentYear').value = new Date().getFullYear();
@@ -251,7 +255,7 @@
             calculate();
         }
 
-        function fractureRisk(f, gender, age, fracture, gluc) {
+        function fractureRisk(f, gender, age) {
             let a = Math.ceil(age / 5) * 5;
             let risk;
 
@@ -286,13 +290,6 @@
                     risk = score(f, -2.1, -3.8);
                 } else if (a >= 85) {
                     risk = score(f, -2.0, -3.8);
-                }
-            }
-            if (fracture || gluc) {
-                risk++;
-                if (risk > 2) risk = 2;
-                if (fracture && gluc && a > 40) {
-                    risk = 2;
                 }
             }
 
@@ -392,15 +389,28 @@
 
         function calculateRisk(age, gender, femoralNeckT, femoralNeckT2, lumbarT, fracture, gluc){
 
-
+            if (fracture && gluc) return HIGH_RISK;
             let risk;
-            if (gender == "f") {
-                risk = fractureRisk(femoralNeckT, gender, age, fracture === "yes", gluc === "yes");
-            } else {
-                risk = fractureRisk(femoralNeckT2, gender, age, fracture === "yes", gluc === "yes");
-            }
+            const femoralNeckFemaleT = gender == 'm' ? femoralNeckT2 : femoralNeckT;
 
-            if (risk == 0) risk = fractureRisk(lumbarT, gender, age, fracture === "yes", gluc === "yes");
+            if (femoralNeckFemaleT){
+                risk = fractureRisk(femoralNeckT2, gender, age);
+                if (fracture || gluc){
+                    risk = Math.min(HIGH_RISK, risk+1);
+                }else{
+                    if (risk == LOW_RISK && lumbarT <= -2.5){
+                        risk = MODERATE_RISK;
+                    }
+                }
+                return risk;
+            }else{
+                if (lumbarT){
+                    if (lumbarT <= -2.5){
+                        return MODERATE_RISK;
+                    }
+                }
+                return UNDEFINED_RISK;
+            }
 
 
             return risk;
@@ -414,8 +424,8 @@
             var femoralNeckT = document.getElementById('femoral').value;
             var femoralNeckT2 = document.getElementById('femoral2').value;
             var totalHipT = document.getElementById('hip').value;
-            var fracture = document.querySelector('input[name="fracture"]:checked').value;
-            var gluc = document.querySelector('input[name="gluc"]:checked').value;
+            var fracture = document.querySelector('input[name="fracture"]:checked').value === 'yes';
+            var gluc = document.querySelector('input[name="gluc"]:checked').value === 'yes';
 
             let categoryName = "";
             let followUp = "";
