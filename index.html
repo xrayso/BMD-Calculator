@@ -392,22 +392,8 @@
                 hipT = Math.min(...totalHipScores);
             }
 
-            // At this point, you have:
-            // age, gender, lumbarT, femoralT, hipT
-            // previousDay, previousMonth, previousYear
-            // intervalLumbar, intervalHip
-
-            // -------------------------------------------------
-            // You could populate your form fields here if you want:
-            // document.getElementById('age').value = age || '';
-            // (etc.)
-            // Or pass them to your existing calculate() function.
-
-            // -------------------------------------------------
-            // Create final minimal text (only lines that had useful info)
             const finalText = usedLines.join('\n');
 
-            // Overwrite the large text area with the minimal text
             textArea.value = finalText;
 
             if (gender === 'm') {
@@ -415,6 +401,8 @@
             } else {
                 document.getElementById('female').checked = true;
             }
+
+            document.getElementById('age').value = age ?? ''
 
             // T-Scores
             document.getElementById('lumbar').value = lumbarT ?? '';
@@ -437,6 +425,7 @@
             document.getElementById('previousHip').value = '';
 
 
+            calculate();
         }
 
         function handleGenderChange() {
