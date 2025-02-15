@@ -18,6 +18,39 @@
             padding-top: 20px; /* Added padding-top */
         }
 
+/* New wrapper that places the two sections side by side */
+        .main-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;            /* space between the left and right columns */
+            padding-top: 20px;   
+            width: 95%;
+            margin: 0 auto;
+        }
+
+        /* New container for the large text area on the right */
+        .textbox-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .textbox-container label {
+            margin-bottom: 10px;
+        }
+
+        .textbox-container textarea {
+            width: 100%;
+            height: 500px; 
+            padding: 10px;
+            resize: vertical;
+            border: 1px solid #CCCCCC;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
         .container {
             background-color: #ffffff;
             border-radius: 8px;
@@ -110,101 +143,112 @@
 </head>
 
 <body>
-    <div class="container">
-        <h1>BMD Assessment</h1>
-        <div class="input-field">
-            <label for="age">Enter Age:</label>
-            <input type="number" id="age" min="18">
-        </div>
-        <div class="radio-field radio-group">
-            <label>Enter Gender:</label>
-            <div>
-                <input type="radio" id="male" name="gender" value="m">
-                <label for="male">Male</label>
+    <div class="main-wrapper">
+        <!-- Left side: Existing container -->
+        <div class="container">
+            <h1>BMD Assessment</h1>
+            <div class="input-field">
+                <label for="age">Enter Age:</label>
+                <input type="number" id="age" min="18">
             </div>
-            <div>
-                <input type="radio" id="female" name="gender" value="f" checked>
-                <label for="female">Female</label>
+            <div class="radio-field radio-group">
+                <label>Enter Gender:</label>
+                <div>
+                    <input type="radio" id="male" name="gender" value="m">
+                    <label for="male">Male</label>
+                </div>
+                <div>
+                    <input type="radio" id="female" name="gender" value="f" checked>
+                    <label for="female">Female</label>
+                </div>
             </div>
-        </div>
-        <div class="input-field">
-            <label for="lumbar" id="lumbarLabel">Enter Lumbar Spine T-Score:</label>
-            <input type="number" id="lumbar">
-        </div>
-        <div class="input-field">
-            <label for="femoral" id="femoralLabel">Enter Femoral Neck T-Score:</label>
-            <input type="number" id="femoral">
-        </div>
-        <div class="input-field" id="femoral2-field">
-            <label for="femoral2" id="femoral2Label">Enter Femoral Neck T-Score Female:</label>
-            <input type="number" id="femoral2">
-        </div>
-        <div class="input-field" id="hip-field">
-            <label for="hip" id="hipLabel">Enter Total Hip T-Score:</label>
-            <input type="number" id="hip">
-        </div>
-        <div class="input-field" id="current-field">
-            <label>Most Recent BMD:</label>
-            <div class="date-inputs">
-                <input type="number" id="currentDay" placeholder="DD" min="1" max="31">
-                <input type="number" id="currentMonth" placeholder="MM" min="1" max="12">
-                <input type="number" id="currentYear" placeholder="YYYY" min="1900">
+            <div class="input-field">
+                <label for="lumbar" id="lumbarLabel">Enter Lumbar Spine T-Score:</label>
+                <input type="number" id="lumbar">
             </div>
-        </div>
-        <div class="input-field" id="previous-field">
-            <label>Previous Date:</label>
-            <div class="date-inputs">
-                <input type="number" id="previousDay" placeholder="DD" min="1" max="31">
-                <input type="number" id="previousMonth" placeholder="MM" min="1" max="12">
-                <input type="number" id="previousYear" placeholder="YYYY" min="1900">
+            <div class="input-field">
+                <label for="femoral" id="femoralLabel">Enter Femoral Neck T-Score:</label>
+                <input type="number" id="femoral">
             </div>
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <label for="intervalLumbar" style="width: 250px;">Change vs Previous L Spine</label>
-                <input type="number" id="intervalLumbar" />
+            <div class="input-field" id="femoral2-field">
+                <label for="femoral2" id="femoral2Label">Enter Femoral Neck T-Score Female:</label>
+                <input type="number" id="femoral2">
             </div>
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <label for="previousLumbar" style="width: 250px;">Previous Lumbar BMD</label>
-                <input type="number" id="previousLumbar" />
+            <div class="input-field" id="hip-field">
+                <label for="hip" id="hipLabel">Enter Total Hip T-Score:</label>
+                <input type="number" id="hip">
             </div>
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <label for="intervalHip" style="width: 250px;">Change vs Previous Hip</label>
-                <input type="number" id="intervalHip" />
+            <div class="input-field" id="current-field">
+                <label>Most Recent BMD:</label>
+                <div class="date-inputs">
+                    <input type="number" id="currentDay" placeholder="DD" min="1" max="31">
+                    <input type="number" id="currentMonth" placeholder="MM" min="1" max="12">
+                    <input type="number" id="currentYear" placeholder="YYYY" min="1900">
+                </div>
             </div>
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <label for="previousHip" style="width: 250px;">Previous Hip BMD</label>
-                <input type="number" id="previousHip" />
+            <div class="input-field" id="previous-field">
+                <label>Previous Date:</label>
+                <div class="date-inputs">
+                    <input type="number" id="previousDay" placeholder="DD" min="1" max="31">
+                    <input type="number" id="previousMonth" placeholder="MM" min="1" max="12">
+                    <input type="number" id="previousYear" placeholder="YYYY" min="1900">
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <label for="intervalLumbar" style="width: 250px;">Change vs Previous L Spine</label>
+                    <input type="number" id="intervalLumbar" />
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <label for="previousLumbar" style="width: 250px;">Previous Lumbar BMD</label>
+                    <input type="number" id="previousLumbar" />
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <label for="intervalHip" style="width: 250px;">Change vs Previous Hip</label>
+                    <input type="number" id="intervalHip" />
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <label for="previousHip" style="width: 250px;">Previous Hip BMD</label>
+                    <input type="number" id="previousHip" />
+                </div>
             </div>
-        </div>
-        <div class="hide-with-z">
-            <div class="radio-field">
-                <label>Fragility Fracture History:</label>
-                <div class="radio-group">
-                    <div>
-                        <input type="radio" id="fracture-yes" name="fracture" value="yes">
-                        <label for="fracture-yes">Yes</label>
+            <div class="hide-with-z">
+                <div class="radio-field">
+                    <label>Fragility Fracture History:</label>
+                    <div class="radio-group">
+                        <div>
+                            <input type="radio" id="fracture-yes" name="fracture" value="yes">
+                            <label for="fracture-yes">Yes</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="fracture-no" name="fracture" value="no" checked>
+                            <label for="fracture-no">No</label>
+                        </div>
                     </div>
-                    <div>
-                        <input type="radio" id="fracture-no" name="fracture" value="no" checked>
-                        <label for="fracture-no">No</label>
+                </div>
+                <div class="radio-field">
+                    <label>Glucocorticoid History:</label>
+                    <div class="radio-group">
+                        <div>
+                            <input type="radio" id="gluc-yes" name="gluc" value="yes">
+                            <label for="gluc-yes">Yes</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="gluc-no" name="gluc" value="no" checked>
+                            <label for="gluc-no">No</label>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="radio-field">
-                <label>Glucocorticoid History:</label>
-                <div class="radio-group">
-                    <div>
-                        <input type="radio" id="gluc-yes" name="gluc" value="yes">
-                        <label for="gluc-yes">Yes</label>
-                    </div>
-                    <div>
-                        <input type="radio" id="gluc-no" name="gluc" value="no" checked>
-                        <label for="gluc-no">No</label>
-                    </div>
-                </div>
-            </div>
+            <div id="result">Result: <span></span></div>
+            <div id="follow-up"></div>
         </div>
-        <div id="result">Result: <span></span></div>
-        <div id="follow-up"></div>
+
+        <!-- Right side: New text-area container -->
+        <div class="textbox-container">
+            <label for="report-text">
+                Paste text for analysis here:
+            </label>
+            <textarea id="report-text" placeholder="Paste report here..."></textarea>
+        </div>
     </div>
 
     <script>
@@ -240,9 +284,160 @@
             document.getElementById('currentYear').addEventListener('input', calculate);
             document.getElementById('intervalHip').addEventListener('input', calculate);
             document.getElementById('intervalLumbar').addEventListener('input', calculate);
+            document.getElementById('report-text').addEventListener('input', handleReportSubmission)
             handleGenderChange(); // Initial check for gender visibility
             calculate(); // Initial calculation
         });
+
+        function handleReportSubmission() {
+            const textArea = document.getElementById('report-text');
+            const fullText = textArea.value;
+
+            // Split text by lines
+            const lines = fullText.split(/\r?\n/);
+
+            // Objects/variables to store extracted data
+            let age = null;
+            let gender = null;
+            let lumbarT = null;
+            let femoralNeckScores = [];
+            let totalHipScores = [];
+
+            // For previous date and changes
+            let previousDay = null;
+            let previousMonth = null;
+            let previousYear = null;
+            let intervalLumbar = null;
+            let intervalHip = null;
+
+            // We'll push lines here that contain needed info.
+            const usedLines = [];
+
+            // A simple month name map (if needed for previous date extraction)
+            const monthMap = {
+                january: 1, february: 2, march: 3, april: 4, may: 5,
+                june: 6, july: 7, august: 8, september: 9,
+                october: 10, november: 11, december: 12
+            };
+
+            lines.forEach((line) => {
+                // 1) Extract "73-year-old female" => age/gender
+                //    Example match: "73-year-old female"
+                const ageGenderMatch = line.match(/(\d+)-year-old\s+(male|female)/i);
+                if (ageGenderMatch) {
+                    usedLines.push(line);
+                    age = parseInt(ageGenderMatch[1], 10);
+                    // If it says 'female' => 'f', 'male' => 'm'
+                    gender = ageGenderMatch[2].toLowerCase().startsWith('f') ? 'f' : 'm';
+                }
+
+                // 2) Extract Lumbar Spine T-Score => "Lumbar spine T-score = -2.0"
+                const lumbarMatch = line.match(/Lumbar spine\s*T\s*-\s*Score\s*=\s*(-?\d+(\.\d+)?)/i);
+                if (lumbarMatch) {
+                    usedLines.push(line);
+                    lumbarT = parseFloat(lumbarMatch[1]);
+                }
+
+                // 3) Extract Femoral Neck T-Scores => "Right Femoral Neck T-score = -1.4", etc.
+                const femoralMatch = line.match(/Femoral Neck T-score.*=\s*(-?\d+(\.\d+)?)/i);
+                if (femoralMatch) {
+                    usedLines.push(line);
+                    femoralNeckScores.push(parseFloat(femoralMatch[1]));
+                }
+
+                // 4) Extract Total Hip T-Scores => "Right Total Hip T-score = -1.0"
+                const totalHipMatch = line.match(/Total Hip T-score.*=\s*(-?\d+(\.\d+)?)/i);
+                if (totalHipMatch) {
+                    usedLines.push(line);
+                    totalHipScores.push(parseFloat(totalHipMatch[1]));
+                }
+
+                // 5) Extract the previous date => e.g. "Last prior April 25, 2023"
+                const priorDateMatch = line.match(/Last\s+prior\s+([A-Za-z]+)\s+(\d{1,2}),\s+(\d{4})/i);
+                if (priorDateMatch) {
+                    usedLines.push(line);
+                    // Convert month name to month number if possible
+                    const monthName = priorDateMatch[1].toLowerCase();
+                    previousMonth = monthMap[monthName] || 1; // fallback to 1 if unknown
+                    previousDay = parseInt(priorDateMatch[2], 10);
+                    previousYear = parseInt(priorDateMatch[3], 10);
+                }
+
+                // 6) Extract BMD changes vs previous: "Lumbar spine = 0.0" 
+                //    We'll interpret that as "intervalLumbar"
+                const lumbarDiffMatch = line.match(/Lumbar spine\s*=\s*([+-]?\d+(\.\d+)?)/i);
+                if (lumbarDiffMatch) {
+                    usedLines.push(line);
+                    intervalLumbar = parseFloat(lumbarDiffMatch[1]);
+                }
+
+                //    For the hip: "Total Femur = +0.005"
+                const totalFemurMatch = line.match(/Total Femur\s*=\s*([+-]?\d+(\.\d+)?)/i);
+                if (totalFemurMatch) {
+                    usedLines.push(line);
+                    intervalHip = parseFloat(totalFemurMatch[1]);
+                }
+            });
+
+            // -------------------------------------------------
+            // If there are multiple scores (left and right), pick the minimum
+            // Femoral Neck
+            let femoralT = null;
+            if (femoralNeckScores.length > 0) {
+                femoralT = Math.min(...femoralNeckScores);
+            }
+            // Total Hip
+            let hipT = null;
+            if (totalHipScores.length > 0) {
+                hipT = Math.min(...totalHipScores);
+            }
+
+            // At this point, you have:
+            // age, gender, lumbarT, femoralT, hipT
+            // previousDay, previousMonth, previousYear
+            // intervalLumbar, intervalHip
+
+            // -------------------------------------------------
+            // You could populate your form fields here if you want:
+            // document.getElementById('age').value = age || '';
+            // (etc.)
+            // Or pass them to your existing calculate() function.
+
+            // -------------------------------------------------
+            // Create final minimal text (only lines that had useful info)
+            const finalText = usedLines.join('\n');
+
+            // Overwrite the large text area with the minimal text
+            textArea.value = finalText;
+
+            if (gender === 'm') {
+                document.getElementById('male').checked = true;
+            } else {
+                document.getElementById('female').checked = true;
+            }
+
+            // T-Scores
+            document.getElementById('lumbar').value = lumbarT ?? '';
+            document.getElementById('femoral').value = femoralT ?? '';
+            // For a male, if needed:
+            document.getElementById('femoral2').value = ''; // Clear or set as needed
+            document.getElementById('hip').value = hipT ?? '';
+
+            // Previous Date
+            document.getElementById('previousDay').value = previousDay ?? '';
+            document.getElementById('previousMonth').value = previousMonth ?? '';
+            document.getElementById('previousYear').value = previousYear ?? '';
+
+            // Interval changes
+            document.getElementById('intervalLumbar').value = intervalLumbar ?? '';
+            document.getElementById('intervalHip').value = intervalHip ?? '';
+
+
+            document.getElementById('previousLumbar').value = '';
+            document.getElementById('previousHip').value = '';
+
+
+        }
 
         function handleGenderChange() {
             const gender = document.querySelector('input[name="gender"]:checked').value;
